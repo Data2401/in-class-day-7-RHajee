@@ -1,6 +1,6 @@
 ---
 title: "In Class Lab"
-author: "Dr. Shoemaker"
+author: "Rehana Hajee"
 date: "DATA 2401"
 output: html_document
 ---
@@ -20,6 +20,15 @@ knitr::opts_chunk$set(echo = TRUE)
 4. Create a vector `m` that contains the numbers 10 to 1 (in that order), in two different ways, neither of which is just typing "10, 9 , 8 ...".  Hint: use one of the helper functions we learned.
 5. Subtract `m` FROM `n`. Note the recycling!
 
+```{r}
+n = 10:49
+length(n)
+n + 1
+m = 10:1
+m = seq(10,1)
+n - m
+```
+
 ### Set 2 
 
 1. Use the `seq()` function to produce a range of numbers from -5 to 10 in `0.1` increments. Store it in a variable `x_range`
@@ -27,7 +36,11 @@ knitr::opts_chunk$set(echo = TRUE)
 3. Use the `plot()` function to plot your "wave"!
      + the x vector goes in the first argument, the y vector goes in the second argument
      + You'll need to add the argument `type = "l"` for a line. NOTE: That is a lower case "L", not a 1. 
-
+```{r}
+x_range = seq(-5, 10, by = 0.1)
+sin_wave = sin(x_range)
+plot(x_range, sin_wave, type = "l", col = 'darkred')
+```
 
 ### Set 3 
 
@@ -39,12 +52,27 @@ knitr::opts_chunk$set(echo = TRUE)
 6. Use indexing to create a new vector that contains the first 3 elements and last 3 elements of your combined vector. 
 7. Bonus/extra: do the above in a way that would work no matter how long the vector is (as long as it's longer than 2 elements)
 
+```{r}
+first_nums = 40:50
+next_nums = seq(51,60)
+combined_sums = c(first_nums, next_nums)
+combined_sums [7]
+combined_sums [5:8]
+length_sums = length(combined_sums)
+#new_vector = combined_sums[1:3]:length_sums - 3:length_sums
+```
+
 ## In Class Activity
 
 1. Write a function to simulate rolling a 6-sided die and returns the result.
 
 ```{r}
-
+die_roll = function(roll_count){
+  die = 6:1
+  s = sample(die, roll_count, replace = T)
+  return(s)
+}
+die_roll(1)
 ```
 
 
@@ -52,8 +80,12 @@ knitr::opts_chunk$set(echo = TRUE)
 1. Write a function to simulate rolling 2 6-sided dice that returns the sum of the rolls. 
 
 ```{r}
-
-
+die_roll = function(roll_count){
+  die = 6:1
+  s = sample(die, roll_count, replace = T)
+  return(sum(s))
+}
+die_roll(2)
 ```
 
 
@@ -61,7 +93,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # Your one-roll function goes here
-
+roll_comp = function(name_1, name_2){
+  die = 6:1
+  player_1 = name_1
+  player_2 = name_2
+  
+}
 ```
 
 

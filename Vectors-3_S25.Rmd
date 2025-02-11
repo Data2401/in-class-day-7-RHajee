@@ -1,0 +1,474 @@
+---
+title: " Vectors"
+author: "Rehana Hajee"
+date: "DATA 2401"
+output: 
+  slidy_presentation: 
+    theme: cosmo
+  html_document: 
+    fig_height: 3
+    fig_width: 4
+    highlight: tango
+    theme: cosmo
+---
+
+Logistics Notes: 
+
+
+- Your exam over chapters 1 - 8 will be **in class, in person** on Feb 20th. We will review some on Feb 18th, but you will need to come with questions!
+
+
+# Data Structures 
+
+Last week, we learned:
+
+- functions (both built-in and DIY)
+- conditional statements to control code (or function) flow
+
+
+As we work with more data, we still need to start storing them in more complicated data structures; we'll start with vectors, then learn how to work with lists, and move on to data frames. 
+
+> glimpse ahead: data frames are specific types of lists (that we will learn about after this exam), the ones most often used in data science, but it will be helpful to be familiar with all three. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+# Learning Objectives
+
+- Vectors: What are they, and why are they
+- Vectors: How to make them, how to use them
+    + We'll discuss vectorized functions and how those can be useful. 
+- Vectors: How to combine them, how to split them up
+    + We'll combine vectors using various functions, and we'll learn to *index* vectors.
+    + We'll also learn the concept of *recycling* when we use vectors of different lengths. 
+- Finally, we'll discuss combining vectors of booleans (T/F) with vectors of information: our first method for filtering! 
+   + Thinking ahead: What if I've got a vector of 100 numbers, and I want to know which values are above 23?
+
+# What is a Vector?
+
+> A vector is a one-dimensional collection of values that are stored as a single variable.
+
+Examples: 
+
+- A vector called `dogs` that contains the strings `dachshund`, `lab` and `pug`. 
+- A vector called `degrees` that contains the numbers from 0 to 360 
+
+Each value in the vector is referred to as an *element*, and **each element in the vector must be of the same type**.
+
+```{R, echo = F}
+dogs <- c("dachshund", "lab", "pug")
+degrees <- seq(0, 360)
+```
+
+```{r}
+dogs
+degrees
+```
+
+ 
+
+# Making Vectors
+
+A quick way to make a vector is to use the combine function, `c()`, which combines values into a vector. 
+
+- These values are passed as arguments, separated by commas.
+- The function *returns* a vector that contains those elements
+
+```{r making_vectors}
+# using c() to make vectors! 
+
+# A vector of strings
+dogs <- c("dachshund", "lab", "pug")
+dogs
+
+
+# A vector of numbers
+numbers <- c(1, 2, 3, 4, 5)
+numbers
+
+# A vector of.... ? 
+what <- c(0.4, 3L, "apple", T)
+what
+typeof(what)
+```
+
+What's getting print here? A `[1]` for indexing, then each element of the vector, separated by a tab.
+
+# Helper functions
+
+- Length: The function `length()` lets you know how many elements the vector has
+
+```{r}
+# Finding the length of the vector dogs
+length(dogs)
+```
+
+- Sequences: There are two functions that help with making vectors of numbers:
+  * The `seq()` function takes two integers, and creates a vector of the integers between them. 
+
+```{r}
+# Using seq() to make a vector of numbers
+die_rolls <- seq(1, 6) 
+die_rolls
+
+# You can use a third argument to set the skip size
+odds <- seq(1, 13, by = 2)
+odds
+
+# Or a *different* third argument to set the length
+seven_length <- seq(1,47, length.out = 7)
+seven_length # Note that this gives non-integers! 
+```
+
+  * The colon is a shortcut for a sequence of integers by one:
+  
+```{r}
+# This is the same vector as above 
+die_rolls <- 1:6
+```
+
+- If you need a value repeated over and over, you can use the `rep()` function
+
+```{r}
+# repeat 3, 4 times
+four_threes <- rep(3, 4)
+four_threes
+```
+
+Now we can make super long vectors, with whatever numbers we may need.
+
+```{r}
+degrees <- 0:360
+degrees
+```
+
+Now you can see there is more than just `[1]` on the side. At every line break, R helps by letting you know where you are. 
+
+
+- If you want create a vector that simulates a sample of random integers, you can use the `sample()` function. 
+
+```{r}
+# you tell the sample function what set to sample from, how many times to sample
+    # then whether or not to replace once you've sampled
+sample(degrees, 3, replace = F) # sample 10 times from 1 to 6
+
+# you can also tell sample what probability each of the elements has of being sampled
+# so if I wanted to sample flipping a coin that has a 75% probability of getting heads... 
+sample(x = c("T", "H"), size = 10, replace = T, prob = c(0.25, 0.75)) # each element of prob lines up with the same element of the sample set
+
+# a fair sample
+sample(c("H", "T"), 10, replace = T)
+```
+
+Let's hop to R and "roll" a die. 
+
+```{r}
+die_rolls <- 6:1
+die_probs <- c(rep(.25,5), .4)
+die_probs
+cbind(die_rolls,die_probs)
+table(sample(die_rolls, 100, replace = T, prob = die_probs))
+```
+
+
+# Vectorized Operations
+
+Mathematical operations on vectors in R happens *element-wise*: each element in the first vector is paired with the corresponding element in the second vector. 
+
+```{r}
+v1 <- c(1, 2, 3)
+v2 <- c(4, 6, 8)
+
+v1 + v2
+v1 - v2
+v1 * v2
+v1 / v2
+```
+
+We can't "add" strings, but `paste()` works this way too! 
+
+```{r}
+dogs_squared <- paste(dogs, 1:8, sep = " ")
+dogs_squared
+```
+
+
+# Recycling
+
+What if you try and add vectors that aren't the same size? R reuses (recycles) elements from the shorter vector until the longer one is filled. 
+
+```{r}
+# make new vectors
+v1 <- rep(0,9) # a vector of 0's of length 9
+v1
+v2 <- 1:5 # a vector from 1 to 5
+v2
+
+vec <- v1 + v2 # adding them together
+vec
+```
+
+Since we're adding to 0's it's easy to see what's happening here. Once R runs out of elements in `v2`, it goes back to the beginning and starts over till it's all matched up. *It also warns you what it's doing* 
+
+
+# Vectors vs. Scalars?
+
+This is a trick question. R "sees" even your scalar values as a vector of length one. 
+
+```{r}
+is.vector(3)
+length(3)
+```
+
+So, if we want to add a vector to a scalar? or multiply a vector by a scalar?
+
+```{r}
+v1 <- 1:4
+v1 + 1
+v1 * 2
+```
+
+This is actually just recycling, really. R is taking the smaller vector and applying it to each element of the larger one. 
+
+
+# Exercises: 
+
+1. Use the colon operator : to create a vector `n` of numbers from 10:49
+2. Use the `length()` function to get the number of elements in `n`
+3. Add 1 to each element in `n` and print the result
+4. Create a vector `m` that contains the numbers 10 to 1 (in that order), in two different ways, neither of which is just typing "10, 9 , 8 ...".  Hint: use one of the helper functions we learned.
+5. Subtract `m` FROM `n`. Note the recycling!
+
+```{r}
+
+```
+
+# Vectorized Functions
+
+You can use most built-in functions on vectors just like you learned to use them on single elements. 
+
+```{r}
+x <- -5:5
+x
+abs(x)
+```
+
+Vectors of strings, too!
+```{r}
+nchar(dogs)
+```
+
+# Examples: 
+
+Making (mathematical) functions and plotting the results: 
+
+```{r}
+x <- seq(-2, 2, by = 0.1) # a vector from -2 to 2
+y <- x^2                 # every element of x is squared
+
+# a basic plot of the points, type = "l" tells R to make it a line graph
+plot(x, y, type = "l")
+# a more complicated, but nicer looking plot of the curve
+ggplot(data = data.frame(x, y), aes(x = x, y = y)) + geom_line()
+
+x2 <- -5:5
+plot(x2, abs(x2), pch = 13, col = 5)
+```
+
+# Exercises: 
+
+1. Use the `seq()` function to produce a range of numbers from -5 to 10 in `0.1` increments. Store it in a variable `x_range`
+2. Create a vector `sin_wave` by calling the `sin()` function on each element in `x_range`.
+3. Use the `plot()` function to plot your "wave"!
+     + the x vector goes in the first argument, the y vector goes in the second argument
+     + You'll need to add the argument `type = "l"` for a line. NOTE: That is a lower case "L", not a 1. 
+     
+```{r}
+
+
+```
+
+
+# Indices! 
+
+What if you don't want to work with the whole vector? You want to access a certain element? You use the *index* of that element. 
+
+R uses bracket notation to get to a certain element:
+
+```{r}
+dogs[2] # this accesses the second element of the vector dogs
+```
+
+You can also use variables inside the brackets:
+
+```{r}
+last_index <- length(dogs) # the length is the same as the index of the last element
+
+dogs[last_index] # using this variable accesses the last one
+
+```
+
+
+If you ask for an index that doesn't exist (that is out of bounds), you'll get the value `NA` back, which is short for "not available". 
+
+- This is like `TRUE` or `NULL`, and is a special value. 
+
+```{r}
+dogs[5]
+```
+
+If you ask for a negative index, you'll get everything EXCEPT the negative index:
+
+```{r}
+dogs_not_labs <- dogs[-2]
+dogs_not_labs
+```
+
+# More Indices!! 
+
+Just like our vectorized functions, we can also index using vectors of indices. 
+
+```{r}
+# the index is a vector of the numbers 2 and 3, pulling out the 2nd and 3rd elements
+dogs[2:3] 
+
+# this index is a vector of the numbers 1 and 3, pulling out the 1st and 3rd elements
+dogs[c(1,3)]
+```
+
+
+# Exercises: 
+
+1. Use `:` to make a vector of the integers from 40 to 50 called `first_nums`
+2. Use `seq()` to make a vector of the integers from 51 to 60 called `next_nums`
+3. Combine them using `c()`
+4. Use indexing to access the 7th number in your combined vector
+5. Use indexing to access the 5th to the 8th numbers in your combined vector
+6. Use indexing to create a new vector that contains the first 3 elements and last 3 elements of your combined vector. 
+7. Bonus/extra: do the above in a way that would work no matter how long the vector is (as long as it's longer than 2 elements)
+
+
+```{r}
+
+```
+
+
+
+# Filtering Vectors
+
+We can also index using a vector of logical values! When you index with a vector of boolean values the same length as your vector, you get back the elements in the same position as the `TRUE` values
+
+```{r}
+# our previous vector of three dog types
+dogs 
+
+# a filter vector of Boolean values, T F F 
+are_best <- c(TRUE, FALSE, FALSE)
+
+# index by that filter, get back the best dog. 
+dogs[are_best]
+```
+
+
+How is this actually useful?  Like so:
+
+```{r}
+# a vector of grades
+grades <- c(99,  77, 100,  91,  87,  72,  82,  94,  81)
+
+# a filter for grades that would make an a
+a_grades <- grades >= 90
+
+# Use my filter vector to get back the A's
+grades[a_grades]
+```
+
+These can be combined: 
+```{r}
+# returns the grades where grades are greater than 90:
+grades[grades >= 90]
+```
+
+What's happening: The logical conditional is computing first, then passing that vector of T/F to the indexing.
+
+
+
+We can use another function, length, in addition to those to count the number of A's (in general, the number of elements in the vector where the condition is true)
+
+```{r}
+# compute the length of the returned selected elements
+length(grades[grades >= 90])
+```
+
+So, if we want to remake our `dogs_not_labs` vector, we can use logicals there too:
+
+```{r}
+not_lab <- dogs != "lab"  # creates a logical vector for NOT equal to lab.
+dogs_not_labs <- dogs[not_lab]
+dogs_not_labs
+```
+
+# Modifying Vectors
+
+Suppose you need to change *just* the third element in the vector. Or you need to add an extra element to the end of the vector. 
+
+You can manipulate vectors by their individual elements: 
+
+```{r}
+# change the second element from "lab" to "yellow lab"
+dogs[2] <- "yellow lab"
+dogs
+```
+
+And you can use the `c()` function to add additional elements to the end of a vector:
+
+```{r}
+# the c() function can work with multiple vectors, so it can work with scalars too
+# appending two more dog types to our vector
+dogs <- c(dogs,"chocolate lab", "poodle")
+dogs
+
+dogs <- c(dogs,"chocolate lab", "poodle")
+dogs
+```
+
+We can combine this with our filtering indexing, too! 
+
+```{r}
+grades
+
+# we filter to the grades greater than 90, and then replace those with a 100
+grades[grades >= 90] <- 100
+grades
+```
+
+This will come in handy if you have missing data:
+```{r}
+# Missing data is often represented by `NA`
+data_missing <- c(1.892, 0.638, NA, 0.917, 1.884, 0.894, 0.830, 1.174, NA, 2.066, 0.980, 2.590)
+data_missing
+
+# we can find the missing data by a conditional function that looks for NA: 
+is.na(data_missing)
+
+# we can use the opposite of this (with !) to filter for the non-missing
+data_missing[!is.na(data_missing)]
+
+# save this as our new data: 
+data <- data_missing[!is.na(data_missing)]
+data
+
+## OR 
+# now I can just remove them by setting equal to 0
+data_missing[is.na(data_missing)] <- 0
+data_missing
+```
+
+# In summary
+
+Vectors are the basis of storing data in R, and we learned lots of different ways of using, storing, and manipulating them. Work with logical indexing until you feel comfortable with it, and remember to not use hard coding when you can avoid it. 
+
+
+
